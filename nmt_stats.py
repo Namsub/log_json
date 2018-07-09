@@ -207,6 +207,7 @@ def main(tf):
         #for op, name, ts, dur, alloc_bytes in ops_list:
         #    s = "{0:25s} {1:175s} {2:16d} {3:10d} {4:16d}".format(op,name,ts,dur, alloc_bytes)
         #    print(s)
+
         writer = pd.ExcelWriter('gpu_ops.xlsx', engine = 'xlsxwriter')
         columns_format = ['op', 'name', 'ts', 'dur', 'alloc_bytes']
         ops_values = pd.DataFrame(ops_list, columns=columns_format)
