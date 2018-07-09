@@ -201,17 +201,16 @@ def main(tf):
         #print('<<<<----------------------->>>>')
         #for name in mem_stats_list_exception:
         #    print(name)
-        plot_mem_stats(mem_stats_list)
+        #plot_mem_stats(mem_stats_list)
 
         ops_list = show_operation(trace_line, pid_gpu_all_compute, mem_stats_list)
         #for op, name, ts, dur, alloc_bytes in ops_list:
         #    s = "{0:25s} {1:175s} {2:16d} {3:10d} {4:16d}".format(op,name,ts,dur, alloc_bytes)
         #    print(s)
         writer = pd.ExcelWriter('gpu_ops.xlsx', engine = 'xlsxwriter')
-        for op, name, ts, dur, alloc_bytes in ops_list:
-            columns_format = ['op', 'name', 'ts', 'dur', 'alloc_bytes']
-            ops_values = pd.DataFrame(ops_list, columns=columns_format)
-            ops_values.to_excel(writer, sheet_name='metrics')
+        columns_format = ['op', 'name', 'ts', 'dur', 'alloc_bytes']
+        ops_values = pd.DataFrame(ops_list, columns=columns_format)
+        ops_values.to_excel(writer, sheet_name='metrics')
         writer.save()
 
 
