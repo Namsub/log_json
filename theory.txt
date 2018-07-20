@@ -1,0 +1,49 @@
+[Configuration]
+- input : 4 byte
+- weight, bias : 4 byte
+- batch_size : 32
+- vocab_size : 36548
+- embedding_size(=input_dim) : 128
+- num_unit(=hidden_dim) : 128
+- num_encoder_layer : 1
+- num_decoder_layer : 1
+- Input_seq_len : 1
+- Output_seq_len : 1
+
+
+[Embedding Lookup Table]
+- row(=embed_size) : 128
+- col(=vocab_size) : 36548
+- exp : row * col * 4 byte
+
+[Xt]
+	- row : embedding_size
+	- col : batch_size
+	- exp : row * col * 4 byte
+
+[LSTM Cell]
+	[I(t)]
+		- weight : batch_size * num_unit * 4 byte
+		- bias : 1 * 4 byte
+	[C'(t)]
+		- weight : batch_size * num_unit * 4 byte
+		- bias : 1 * 4 byte
+	[F(t)]
+		- weight : batch_size * num_unit * 4 byte
+		- bias : 1 * 4 byte
+	[O(t)]
+		- weight : batch_size * num_unit * 4 byte
+		- bias : 1 * 4 byte
+
+[Forward]
+	[Encoder]
+		- weight : (I(t) + C'(t) + F(t) + O(t)) * num_encoder_layer * 4 byte
+		- bias : (I(t) + C'(t) + F(t) + O(t)) * num_encoder_layer * 4 byte
+	[Decoder]
+
+[Backward]
+	[Encoder]
+		- weight : Encoder_weight * batch_size
+		- bias : ??
+	[Decoder]
+
