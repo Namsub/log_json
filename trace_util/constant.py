@@ -48,9 +48,9 @@ MEMCPY_DTOH = 'MEMCPYDtoH'
 GPU = 'GPU_0_bfc'
 CUDA_HOST = 'cuda_host_bfc'
 CPU = 'cpu'
+CPU_POOL = 'cpu_pool'
 #### for 'DATAFLOW'
 #### for 'TENSOR'
-
 
 ## event args(EV_ARGS) lists
 #### for 'METADATA'

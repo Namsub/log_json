@@ -56,7 +56,9 @@ if __name__ == '__main__':
 		merge_ops_with_metrics_list = parsing.extract_metrics_for_ops(merge_ops_with_read_write_amount_list)
 		#print_list(merge_ops_with_metrics_list)
 
-		memory_with_ops_list = parsing.extract_memory_with_ops(events_dict, merge_ops_with_metrics_list, "GPU")
+		memory_with_ops_list = parsing.extract_memory_with_ops(events_dict, merge_ops_with_metrics_list)
+		#gpu_memory_with_ops_list = parsing.extract_memory_with_ops(events_dict, merge_ops_with_metrics_list, "GPU")
 
 		#util.write_to_excel(merge_ops_with_metrics_list, memory_with_ops_list, None, args.json_file.split('.')[0]+'.xlsx')
 		util.write_to_excel(merge_ops_with_metrics_list, memory_with_ops_list, None, args.output_dir)
+		#util.write_to_excel(merge_ops_with_metrics_list, cpu_memory_with_ops_list, cpu_pool_memory_with_ops_list, cuda_host_memory_with_ops_list, gpu_memory_with_ops_list, None, args.output_dir)

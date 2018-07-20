@@ -26,11 +26,11 @@ def write_to_excel(ops_list, memory_with_ops_list, mode, filename):
 	ops_values = pd.DataFrame(ops_list_wo_redundancy, columns=columns_format)
 	ops_values.to_excel(writer, sheet_name='metrics')
 
-	# memory_usage
+	# cpu/cpu_pool/cuda_host/gpu memory_usage
 	memory_with_ops_list_wo_redundancy = eliminate_redundancy(memory_with_ops_list)
-	columns_format = ['ts', 'memory_usage', 'op']
+	columns_format = ['ts', 'cpu', 'cpu_pool', 'cuda_host', 'gpu', 'op']
 	memory_values = pd.DataFrame(memory_with_ops_list_wo_redundancy, columns=columns_format)
-	memory_values.to_excel(writer, sheet_name = 'memory_usage_status_for_op')
+	memory_values.to_excel(writer, sheet_name = 'memory_status_for_op')
 
 	if mode == 'vgg':
 		layer_stats_list = extract_layer_stat.vgg(ops_list)

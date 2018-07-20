@@ -255,36 +255,84 @@ def extract_metrics_for_ops(ops_with_read_write_amount_list):
 	return op_with_metrics_list
 
 #def plot_gpu_memory(events, merge_ops_list):
-def extract_memory_with_ops(events, merge_ops_list, mode):
+#def extract_memory_with_ops(events, merge_ops_list, mode):
+def extract_memory_with_ops(events, merge_ops_list):
 	# x : ts
 	# y : memory
-	gpu_memory_list = []
+
+	## extract ts_list
+	ts_dic = {}
 	for event in events:
 		try:
-			if mode == "GPU":
-				if event[constant.EV_CAT] == constant.MEMORY and event[constant.EV_NAME] == constant.GPU:
-					ts = int(event[constant.EV_TS])
-					gpu_memory = int(event[constant.EV_ARGS][constant.GPU])
-					gpu_memory_list.append((ts, gpu_memory))
-			elif mode == "CPU":
-			elif mode == "CPU_POOL":
-			elif mode == "CUDA_HOST":
+			if event[constant.EV_CAT] == constant.MEMORY and event[constant.EV_NAME] == constant.GPU:
+				ts = int(event[constant.EV_TS])
+			elif event[constant.EV_CAT] == constant.MEMORY and event[constant.EV_NAME] == constant.CPU:
+				ts = int(event[constant.EV_TS])
+			elif event[constant.EV_CAT] == constant.MEMORY and event[constant.EV_NAME] == constant.CPU_POOL:
+				ts = int(event[constant.EV_TS])
+			elif event[constant.EV_CAT] == constant.MEMORY and event[constant.EV_NAME] == constant.CUDA_HOST:
+				ts = int(event[constant.EV_TS])
+			ts_dic[ts] = [-1, -1, -1, -1]
 		except:
 			#print(event)
 			pass
 	
-	sorted_by_ts_gpu_memory_list = sorted(gpu_memory_list, key=operator.itemgetter(0))
-	sorted_by_ts_merge_ops_list = sorted(merge_ops_list, key=operator.itemgetter(0))
+	## matching ts with memory
+	for event in events:
+		try:
+			if event[constant.EV_CAT] == constant.MEMORY and event[constant.EV_NAME] == constant.CPU:
+				ts = int(event[constant.EV_TS])
+				cpu_memory = int(event[constant.EV_ARGS][constant.CPU])
+				ts_dic[ts][0] = cpu_memory
+			elif event[constant.EV_CAT] == constant.MEMORY and event[constant.EV_NAME] == constant.CPU_POOL:
+				ts = int(event[constant.EV_TS])
+				cpu_pool_memory = int(event[constant.EV_ARGS][constant.CPU_POOL])
+				ts_dic[ts][1] = cpu_pool_memory
+			elif event[constant.EV_CAT] == constant.MEMORY and event[constant.EV_NAME] == constant.CUDA_HOST:
+				ts = int(event[constant.EV_TS])
+				cuda_host_memory = int(event[constant.EV_ARGS][constant.CUDA_HOST])
+				ts_dic[ts][2] = cuda_host_memory
+			elif event[constant.EV_CAT] == constant.MEMORY and event[constant.EV_NAME] == constant.GPU:
+				ts = int(event[constant.EV_TS])
+				gpu_memory = int(event[constant.EV_ARGS][constant.GPU])
+				ts_dic[ts][3] = gpu_memory
+		except:
+			pass
+	
+	ts_with_mem_list = []
+	for ts_key, mem_list_val in ts_dic.items():
+		row = []
+		row.append(ts_key)
+		row.extend(mem_list_val)
+		ts_with_mem_list.append(row)
 
+	## sorted_memory_list
+	sorted_by_ts_memory_list = sorted(ts_with_mem_list, key=operator.itemgetter(0))
+	for i in range(1, len(sorted_by_ts_memory_list)):
+		for j in range(1, 5):
+			if sorted_by_ts_memory_list[i][j] == -1:
+				sorted_by_ts_memory_list[i][j] = sorted_by_ts_memory_list[i-1][j]
+
+	for i in range(0, len(sorted_by_ts_memory_list)):
+		for j in range(1, 5):
+			if sorted_by_ts_memory_list[i][j] == -1:
+				sorted_by_ts_memory_list[i][j] = 0
+
+	## merge with ops
+	sorted_by_ts_merge_ops_list = sorted(merge_ops_list, key=operator.itemgetter(0))
 	memory_with_ops_list = []
 	i = 0
-	for ts, gpu_memory in sorted_by_ts_gpu_memory_list:
-		ops_ts = sorted_by_ts_merge_ops_list[i][0]
+	for ts, cpu_mem, cpu_pool_mem, cuda_host_mem, gpu_mem in sorted_by_ts_memory_list:
 		op_name = ""
-		if ops_ts <= ts:
-			op_name = sorted_by_ts_merge_ops_list[i][2]
-			i += 1
-		memory_with_ops_list.append(list((ts, gpu_memory, op_name)))
+		if i < len(sorted_by_ts_merge_ops_list):
+			ops_ts = sorted_by_ts_merge_ops_list[i][0]
+			if ts <= ops_ts:
+				pass
+			else:
+				op_name = sorted_by_ts_merge_ops_list[i][2]
+				i += 1
+
+		memory_with_ops_list.append(list((ts, cpu_mem/MB, cpu_pool_mem/MB, cuda_host_mem/MB, gpu_mem/MB, op_name)))
 
 	#print_list(memory_with_ops_list)
 	return memory_with_ops_list
