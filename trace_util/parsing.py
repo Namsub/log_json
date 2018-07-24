@@ -2,6 +2,7 @@ import operator
 import re
 from . import constant
 from . import extract_layer_stat
+from . import util
 
 MB = 1024*1024
 
@@ -236,7 +237,7 @@ def extract_metrics_for_ops(ops_with_read_write_amount_list):
 
 		op_with_metric = []
 
-		op_with_metric.extend(list(op_with_memstat_tuple[0:5])) #from 'ts' to 'alloc_mem'
+		op_with_metric.extend(list(op_with_memstat_tuple[0:6])) #from 'ts' to 'req_mem'
 
 		op_with_metric.append(input_list)
 		op_with_metric.append(read_write_tuple[0]/MB)
@@ -320,6 +321,7 @@ def extract_memory_with_ops(events, merge_ops_list):
 
 	## merge with ops
 	sorted_by_ts_merge_ops_list = sorted(merge_ops_list, key=operator.itemgetter(0))
+	sorted_by_ts_merge_ops_list = util.eliminate_redundancy(sorted_by_ts_merge_ops_list)
 	memory_with_ops_list = []
 	i = 0
 	for ts, cpu_mem, cpu_pool_mem, cuda_host_mem, gpu_mem in sorted_by_ts_memory_list:

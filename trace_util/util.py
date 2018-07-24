@@ -20,18 +20,19 @@ def eliminate_redundancy(ops_list):
 def write_to_excel(ops_list, memory_with_ops_list, mode, filename):
 	writer = pd.ExcelWriter(filename, engine = 'xlsxwriter')
 
-	# metrics
+	## metrics
 	ops_list_wo_redundancy = eliminate_redundancy(ops_list)
-	columns_format = ['ts', 'op_type', 'op', 'total_dur(μs)', 'allocated_memory', 'input_list', 'read_memory(MB)', 'write_memory(MB)', 'memory_usage(MB)', 'memory_bandwidth(GB/s)']
+	columns_format = ['ts', 'op_type', 'op', 'total_dur(μs)', 'alloc_mem', 'req_mem', 'input_list', 'read_memory(MB)', 'write_memory(MB)', 'memory_usage(MB)', 'memory_bandwidth(GB/s)']
 	ops_values = pd.DataFrame(ops_list_wo_redundancy, columns=columns_format)
 	ops_values.to_excel(writer, sheet_name='metrics')
 
-	# cpu/cpu_pool/cuda_host/gpu memory_usage
+	## cpu/cpu_pool/cuda_host/gpu memory_usage
 	memory_with_ops_list_wo_redundancy = eliminate_redundancy(memory_with_ops_list)
 	columns_format = ['ts', 'cpu', 'cpu_pool', 'cuda_host', 'gpu', 'op']
 	memory_values = pd.DataFrame(memory_with_ops_list_wo_redundancy, columns=columns_format)
 	memory_values.to_excel(writer, sheet_name = 'memory_status_for_op')
 
+	## for CNN
 	if mode == 'vgg':
 		layer_stats_list = extract_layer_stat.vgg(ops_list)
 		columns_format = ['layer', 'duration(ms)', 'memory_usage(MB)']
