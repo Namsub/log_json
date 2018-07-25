@@ -21,13 +21,15 @@ if __name__ == '__main__':
 		events_dict = data_dict['traceEvents']
 
 		'''
-		#name_list = extract_name_list(events_dict, TENSOR)
-		#print_list(name_list)
+		name_list = extract_name_list(events_dict, TENSOR)
+		print_list(name_list)
 		'''
 		#### extract events ####
 		gpu_schedule_pid = parsing.extract_pid_for_process_name(events_dict, constant.GPU_SCHEDULE)
 		gpu_memcpy_pid = parsing.extract_pid_for_process_name(events_dict, constant.GPU_MEMCPY)
 		gpu_compute_pid = parsing.extract_pid_for_process_name(events_dict, constant.GPU_COMPUTE)
+		#print(gpu_compute_pid)
+		#exit()
 		gpu_tensor_pid = parsing.extract_pid_for_process_name(events_dict, constant.GPU_TENSOR)
 		cpu_compute_pid = parsing.extract_pid_for_process_name(events_dict, constant.CPU_COMPUTE)
 		cpu_tensor_pid = parsing.extract_pid_for_process_name(events_dict, constant.CPU_TENSOR)
@@ -45,21 +47,19 @@ if __name__ == '__main__':
 		#### extract memstat, metrics ####
 		gpu_memcpy_ops_with_memstat_list = parsing.extract_mem_stat_for_ops(gpu_memcpy_list, cpu_tensor_list)
 		gpu_memcpy_ops_with_memstat_list.extend(parsing.extract_mem_stat_for_ops(gpu_memcpy_list, gpu_tensor_list))
-		#print_list(gpu_memcpy_ops_with_memstat_list)
 		gpu_memcpy_ops_with_read_write_amount_list = parsing.extract_read_write_amount_for_memcpy_ops(gpu_memcpy_ops_with_memstat_list)
+		#print_list(gpu_memcpy_ops_with_read_write_amount_list)
 
 		gpu_compute_ops_with_memstat_list = parsing.extract_mem_stat_for_ops(gpu_compute_list, gpu_tensor_list)
-		#print(gpu_compute_ops_with_memstat_list[3])
 		gpu_compute_ops_with_inputs_list = parsing.extract_inputs_for_ops(gpu_schedule_list, gpu_compute_ops_with_memstat_list)
-		#print(gpu_compute_ops_with_inputs_list[3])
 		gpu_compute_ops_with_read_write_amount_list = parsing.extract_read_write_amount_for_compute_ops(gpu_compute_ops_with_inputs_list, gpu_tensor_list, cpu_tensor_list)
 		#print(gpu_compute_ops_with_read_write_amount_list[3])
 		
 		merge_ops_with_read_write_amount_list = gpu_memcpy_ops_with_read_write_amount_list + gpu_compute_ops_with_read_write_amount_list
-		#print(merge_ops_with_read_write_amount_list[3])
 		merge_ops_with_metrics_list = parsing.extract_metrics_for_ops(merge_ops_with_read_write_amount_list)
 		#print(merge_ops_with_metrics_list[3])
 
 		memory_with_ops_list = parsing.extract_memory_with_ops(events_dict, merge_ops_with_metrics_list)
 
+		#### Write to excel ####
 		util.write_to_excel(merge_ops_with_metrics_list, memory_with_ops_list, None, args.output_dir)
